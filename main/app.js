@@ -53,13 +53,16 @@ app.post('/students', async (req, res) => {
       res.status(400).json({ "message": "body is missing" })
     }
     else {
-      const student = await Student.findByPk(req.params.id)
-      if (typeof (req.body.name) !== String || typeof (req.body.address) !== String || typeof (req.body.age) !== INTEGER) {
+      if ((req.body.name.length === 0 || req.body.address.length === 0 || req.body.age === null)) {
         res.status(400).json({ "message": "malformed request" })
       }
       else {
-        if (req.body.age <= 0) {
-          res.status(400).json({"message": "age should be a positive number"});
+        if (req.body.age < 0) {
+          res.status(400).json({ "message": "age should be a positive number" });
+        }
+        else {
+          const newStudent = await Student.create(req.body)
+          res.status(201).json({ "message": "created" })
         }
       }
     }
