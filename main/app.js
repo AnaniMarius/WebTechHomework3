@@ -1,6 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const Sequelize = require('sequelize')
+const { INTEGER } = require('sequelize')
 
 const sequelize = new Sequelize({
   dialect: 'sqlite',
@@ -48,7 +49,20 @@ app.get('/students', async (req, res) => {
 
 app.post('/students', async (req, res) => {
   try {
-    // TODO
+    if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
+      res.status(400).json({ "message": "body is missing" })
+    }
+    else {
+      const student = await Student.findByPk(req.params.id)
+      if (typeof (req.body.name) !== String || typeof (req.body.address) !== String || typeof (req.body.age) !== INTEGER) {
+        res.status(400).json({ "message": "malformed request" })
+      }
+      else {
+        if (req.body.age <= 0) {
+          res.status(400).json({"message": "age should be a positive number"});
+        }
+      }
+    }
   } catch (err) {
     console.warn(err.stack)
     res.status(500).json({ message: 'server error' })
